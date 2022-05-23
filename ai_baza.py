@@ -1,12 +1,10 @@
 import logging
-import pymongo
 from aiogram import Bot, Dispatcher, executor, types
 import random
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 import time
 from datetime import datetime, timedelta
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.utils.exceptions import Throttled
 import psycopg2
 import urllib.parse as up
 import os
@@ -20,6 +18,8 @@ from aiogram.dispatcher.middlewares import BaseMiddleware
 from aiogram.utils.exceptions import Throttled
 from dotenv import load_dotenv
 from aiogram.utils.markdown import *
+from googletrans import Translator
+
 load_dotenv()
 global xxc
 global zxc
@@ -40,20 +40,51 @@ conn = psycopg2.connect(database=url.path[1:],
                         port=url.port
                         )
 cursor = conn.cursor()
-
 async def anti_flood(*args, **kwargs):
     m = args[0]
     await m.reply("Не спам хуйло. А точніше почекай 10 сек")
-@dp.message_handler(commands=['xc'])
+@dp.message_handler(commands=['eblan'])
+async def enabl(message: types.Message):
+    txt = message.reply_to_message
+    tm = message.reply_to_message.text
+    print(tm)
+    translator = Translator()
+    langua = ['af','sq','am','ar','hy','az','eu','be','bn','bs','bg','ca','ceb','ny','zh-cn','zh-tw','co','hr','cs','da','nl','en','eo','et','tl','fi','fr','fy','gl','ka','de','el', 'gu','ht','ha','haw','iw','he','hi','hmn','hu','is','ig','id','ga','it','ja','jw','kn','kk','km','ko','ku','ky','lo','la','lv','lt','lb','mk','mg','ms','ml','mt','mi','mr','mn','my','ne','no','or','ps','fa','pl','pt','pa','ro', 'sm','gd', 'sr','st','sn','sd','si','sk','sl','so','es','su','sw','sv','tg','ta','te','th','tr','uk','ur','ug','uz','vi','cy','xh','yi','yo','zu',]
+    for lang in langua:
+        xxr = random.choice(langua)
+        vhd = translator.translate(tm, dest=xxr)
+    bn = translator.translate(vhd.text, dest='uk')
+    await txt.reply(bn.text)
+@dp.message_handler(commands=['curse'])
 async def enable(message: types.Message):
-    print(xxc)
+    txt = message.reply_to_message
+    tm = message.reply_to_message.text
+    print(tm)
+    translator = Translator()
+    langua = ['af','sq','am','ar','hy','az','eu','bs','ca','ceb','ny','zh-cn','zh-tw','co','eo','tl','fi','fr','fy','gl','ka','de','el', 'gu','ht','ha','haw','iw','he','hi','hmn','hu','is','ig','id','ja','jw','kn','kk','km','ko','ku','ky','lo','lt','lb','mk','mg','ms','ml','mt','mi','mr','mn','my','ne','no','or','ps','fa','xh','yi','yo','zu',]
+    xxr = random.choice(langua)
+    vhd = translator.translate(tm, dest=xxr)
+    await txt.reply(vhd.text)    
 
-
+@dp.message_handler(commands=['elba'])
+async def enab(message: types.Message):
+    txt = message.reply_to_message
+    tm = message.reply_to_message.text
+    print(tm)
+    translator = Translator()
+    langua = ['af','sq','am','ar','hy','az','eu','bs','ca','ceb','ny','zh-cn','zh-tw','co','eo','tl','fi','fr','fy','gl','ka','de','el', 'gu','ht','ha','haw','iw','he','hi','hmn','hu','is','ig','id','ja','jw','kn','kk','km','ko','ku','ky','lo','lt','lb','mk','mg','ms','ml','mt','mi','mr','mn','my','ne','no','or','ps','fa','xh','yi','yo','zu',]
+    
+    xxr = random.choice(langua)
+    vhd = translator.translate(tm, dest=xxr)
+    bn = translator.translate(vhd.text, dest='uk')
+    await txt.reply(bn.text)
 @dp.message_handler(commands=['beb'])
 async def add_money(message: types.Message):
+
     usrid = message.from_user.id
     name = message.from_user.first_name
     nameuser = message.from_user.username
+    
     cursor.execute("SELECT date_game FROM mone_game WHERE user_id = %s", [usrid])
     resultgamedate = cursor.fetchone()
     g = [0, 1, 2, 3, 1, 2, 3]
@@ -463,11 +494,36 @@ async def whit(message: types.Message):
                             await message.reply('🏧⚡️ ' + money[1] + " перевів " + groshi[1] + ' ' + a[1] + ' бебр.')
     except TypeError:
         await message.reply('Ти не в грі, пропиши /beb')
+@dp.message_handler(commands=['chatlist'])
+async def chat_list(message: types.Message):
+    usrid = message.from_user.id
+    cursor.execute('SELECT title from chatlist')
+    hj = cursor.fetchall()
+    cursor.execute("SELECT usr_id from whitelist WHERE usr_id = %s", (usrid,))
+    bc = cursor.fetchone()
+    for b in bc:
+        if usrid == b:
+            baa = ['🕍🕍🕍 Сінаґоги:\n']
+            for v in hj:
 
-
+                bal = (' - ' + str(v[0]))
+                baa.append(bal)
+            print(*baa)
+            await message.reply('\n'.join(baa))
+        else:
+            await message.reply('Рагулям не відповідаю')
 @dp.message_handler()
 async def send_welcome(message: types.Message):
-    
+    chaser = message.chat.title
+    usid = message.chat.id
+    vcv = '-1001727909795'
+    kin = '-1001552384777'
+    cursor.execute('INSERT into chatlist (title) VALUES (%s) ON CONFLICT (title) DO NOTHING;', (chaser,))
+    conn.commit()
+    if str(usid) == vcv:
+        print(str(chaser) + str(usid) + ' ' +str(message.text) + ' ' +str(message.from_user.username))
+    else:
+        None
     if random.randint(0, 100) < 2:
         baza = ['Трушно', 'Не трушно', 'База', 'Хуяза']
         await message.reply(random.choice(baza))
